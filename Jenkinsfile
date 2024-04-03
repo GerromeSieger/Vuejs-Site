@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent { node 'slave1' }
   triggers {
     githubPush()
   }
