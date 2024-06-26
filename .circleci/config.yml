@@ -63,22 +63,10 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Install rsync
-          command: sudo apt-get update && sudo apt-get install -y rsync
-      - run:
-          name: Setup SSH
-          command: |
-            mkdir -p ~/.ssh
-            printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-            eval $(ssh-agent -s)
-            ssh-add ~/.ssh/id_rsa
-            ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
-      - run:
           name: Deploy to server
           command: |
-            rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/root/dist/
-            ssh -o StrictHostKeyChecking=no $USER@$HOST "
+            scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no dist/ $USER@$HOST:/root/dist/
+            ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no $USER@$HOST "
               sudo cp -r /root/dist/* /var/www/html
               sudo systemctl restart nginx
             "
