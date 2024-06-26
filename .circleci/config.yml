@@ -55,30 +55,30 @@ jobs:
             chmod +x ./test.sh
             ./test.sh
 
-deploy:
-  docker:
-    - image: ubuntu:22.04
-  steps:
-    - checkout
-    - attach_workspace:
-        at: .
-    - run:
-        name: Install SSH client and dependencies
-        command: |
-          apt-get update
-          apt-get install -y openssh-client rsync
-    - run:
-        name: Setup SSH key
-        command: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan $HOST >> ~/.ssh/known_hosts
-    - run:
-        name: Deploy to server
-        command: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/root/dist/
-          ssh -o StrictHostKeyChecking=no $USER@$HOST "
-            sudo cp -r /root/dist/* /var/www/html
-            sudo systemctl restart nginx
-          "
+  deploy:
+    docker:
+      - image: ubuntu:22.04
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install SSH client and dependencies
+          command: |
+            apt-get update
+            apt-get install -y openssh-client rsync
+      - run:
+          name: Setup SSH key
+          command: |
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan $HOST >> ~/.ssh/known_hosts
+      - run:
+          name: Deploy to server
+          command: |
+            rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/root/dist/
+            ssh -o StrictHostKeyChecking=no $USER@$HOST "
+              sudo cp -r /root/dist/* /var/www/html
+              sudo systemctl restart nginx
+            "
