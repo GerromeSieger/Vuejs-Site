@@ -3,20 +3,28 @@ version: 2.1
 jobs:
   deploy:
     docker:
-      - image: cimg/node:16.16
+      - image: ubuntu:22.04
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - add_ssh_keys:
-          fingerprints:
-            - "${SSH_KEY_FINGERPRINT}"       
+      - run:
+          name: Install SSH client and dependencies
+          command: |
+            apt-get update
+            apt-get install -y openssh-client rsync              
+      - run:
+          name: Setup SSH
+          command: |
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan $HOST >> ~/.ssh/known_hosts        
       - run:
           name: Deploy to server
           command: |
-            ssh-keyscan $HOST >> ~/.ssh/known_hosts
             rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/tmp/dist/
-            ssh $USER@$HOST '
+            ssh -o StrictHostKeyChecking=no $USER@$HOST '
               sudo rm -rf /var/www/html/*
               sudo mv /tmp/dist/* /var/www/html/
               sudo systemctl restart nginx
