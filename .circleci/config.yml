@@ -64,11 +64,16 @@ jobs:
           at: .
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:Mt4n2jKNOdmu7DApBBiVMJY48eTMmlRj2DMp6xlPdwU."
+              - "SHA256:Mt4n2jKNOdmu7DApBBiVMJY48eTMmlRj2DMp6xlPdwU."
+      - run:
+          name: Install SSH client and dependencies
+          command: |
+            apt-get update
+            apt-get install -y openssh-client rsync            
       - run:
           name: Deploy to server
           command: |
-            scp -o StrictHostKeyChecking=no -r dist/* $USER@$HOST:/root/dist/
+            rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/* $USER@$HOST:/root/dist/
             ssh -o StrictHostKeyChecking=no $USER@$HOST "
               sudo cp -r /root/dist/* /var/www/html
               sudo systemctl restart nginx
