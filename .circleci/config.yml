@@ -57,7 +57,7 @@ jobs:
 
   deploy:
     docker:
-      - image: cimg/base:stable
+      - image: ubuntu:22.04
     steps:
       - checkout
       - attach_workspace:
@@ -68,10 +68,8 @@ jobs:
       - run:
           name: Deploy to server
           command: |
-            echo "$SSH_PRIVATE_KEY" > ssh_key.pem
-            chmod 600 ssh_key.pem
-            scp -i ssh_key.pem -o StrictHostKeyChecking=no -r dist/* $USER@$HOST:/root/dist/
-            ssh -i ssh_key.pem -o StrictHostKeyChecking=no $USER@$HOST "
+            scp -o StrictHostKeyChecking=no -r dist/* $USER@$HOST:/root/dist/
+            ssh -o StrictHostKeyChecking=no $USER@$HOST "
               sudo cp -r /root/dist/* /var/www/html
               sudo systemctl restart nginx
             "
