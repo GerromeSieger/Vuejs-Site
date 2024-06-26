@@ -69,14 +69,16 @@ jobs:
           name: Setup SSH
           command: |
             mkdir -p ~/.ssh
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+            printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
+            eval $(ssh-agent -s)
+            ssh-add ~/.ssh/id_rsa
             ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
       - run:
           name: Deploy to server
           command: |
-            rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" build/ $USER@$HOST:/root/build/
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$HOST "
-              sudo cp -r /root/build/* /var/www/html
+            rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/root/dist/
+            ssh -o StrictHostKeyChecking=no $USER@$HOST "
+              sudo cp -r /root/dist/* /var/www/html
               sudo systemctl restart nginx
             "
