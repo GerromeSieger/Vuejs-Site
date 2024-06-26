@@ -63,10 +63,15 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Decode SSH key
+          command: |
+            echo $SSH_PRIVATE_KEY_BASE64 | base64 --decode > ssh_key
+            chmod 600 ssh_key
+      - run:
           name: Deploy to server
           command: |
-            scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no dist/ $USER@$HOST:/root/dist/
-            ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no $USER@$HOST "
+            scp -i ssh_key -o StrictHostKeyChecking=no -r dist/* $USER@$HOST:/root/dist/
+            ssh -i ssh_key -o StrictHostKeyChecking=no $USER@$HOST "
               sudo cp -r /root/dist/* /var/www/html
               sudo systemctl restart nginx
             "
