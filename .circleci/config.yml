@@ -62,5 +62,5 @@ jobs:
           command: |
             ssh -o StrictHostKeyChecking=no $USER@$HOST '
                 docker pull gerrome/vue-site
-                docker run -p 8080:80 -d --name vue gerrome/vue-site
+                docker run -p 8080:80 -d gerrome/vue-site
               '
