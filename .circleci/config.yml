@@ -15,16 +15,22 @@ jobs:
           name: Install SSH client and dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y rsync            
+            sudo apt-get install -y openssh-client rsync
       - run:
-          name: Deploy to server
+          name: Setup SSH and deploy
           command: |
             mkdir -p ~/.ssh
-            touch ~/.ssh/known_hosts
-            ssh-keyscan $HOST >> ~/.ssh/known_hosts
-            ssh $USER@$HOST '
-              sudo systemctl restart nginx
-            '
+            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+            if rsync -avz -e "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10" dist/ $USER@$HOST:/tmp/dist/; then
+              ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST '
+                sudo rm -rf /var/www/html/*
+                sudo mv /tmp/dist/* /var/www/html/
+                sudo systemctl restart nginx
+              '
+            else
+              echo "Failed to rsync files to the server"
+              exit 1
+            fi
 
 workflows:
   version: 2
