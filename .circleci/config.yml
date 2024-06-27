@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Setup SSH and deploy
           command: |
-            scp -o StrictHostKeyChecking=no -r dist/* $USER@$HOST:/root/ 
+            scp -o StrictHostKeyChecking=no -r ./dist/* $USER@$HOST:/root/ 
             ssh -o StrictHostKeyChecking=no $USER@$HOST '
                 sudo rm -rf /var/www/html/*
                 sudo mv dist/* /var/www/html/
