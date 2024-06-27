@@ -61,6 +61,6 @@ jobs:
           name: Setup SSH and deploy
           command: |
             ssh -o StrictHostKeyChecking=no $USER@$HOST '
-                docker pull $DOCKER_IMAGE
-                docker run -p 8080:80 -d --name vue $DOCKER_IMAGE
+                docker pull gerrome/vue-site
+                docker run -p 8080:80 -d --name vue gerrome/vue-site
               '
