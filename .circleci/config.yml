@@ -22,6 +22,7 @@ jobs:
             mkdir -p ~/.ssh
             echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa
             echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+            chmod 400 ~/.ssh/id_rsa
             chmod 700 ~/.ssh
             chmod 600 ~/.ssh/known_hosts
             
