@@ -19,6 +19,8 @@ jobs:
       - run:
           name: Deploy to server
           command: |
+            mkdir -p ~/.ssh
+            touch ~/.ssh/known_hosts
             ssh-keyscan $HOST >> ~/.ssh/known_hosts
             rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/tmp/dist/
             ssh $USER@$HOST '
