@@ -24,6 +24,13 @@ jobs:
             chmod 700 ~/.ssh
             chmod 600 ~/.ssh/known_hosts
             
+            # Debug: List contents of .ssh directory
+            ls -la ~/.ssh
+            
+            # Start ssh-agent and add key
+            eval $(ssh-agent -s)
+            ssh-add ~/.ssh/id_rsa
+            
             # Debug: Print SSH key information
             ssh-add -l
             
