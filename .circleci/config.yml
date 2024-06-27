@@ -21,6 +21,7 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa.pem
+            chmod 400 ~/.ssh/id_rsa.pem
             ssh -i "~/.ssh/id_rsa.pem" -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST '
                 sudo rm -rf /var/www/html/*
                 sudo mv /tmp/dist/* /var/www/html/
