@@ -22,10 +22,10 @@ jobs:
             mkdir -p ~/.ssh
             touch ~/.ssh/known_hosts
             ssh-keyscan $HOST >> ~/.ssh/known_hosts
-            rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/tmp/dist/
+#            rsync -avz -e "ssh -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/tmp/dist/
             ssh $USER@$HOST '
-              sudo rm -rf /var/www/html/*
-              sudo mv /tmp/dist/* /var/www/html/
+#              sudo rm -rf /var/www/html/*
+#              sudo mv /tmp/dist/* /var/www/html/
               sudo systemctl restart nginx
             '
 
