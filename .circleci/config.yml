@@ -21,36 +21,11 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa.pem
-            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-            chmod 400 ~/.ssh/id_rsa.pem
-            chmod 700 ~/.ssh
-            chmod 600 ~/.ssh/known_hosts
-            
-            # Debug: List contents of .ssh directory
-            ls -la ~/.ssh
-            
-            # Start ssh-agent and add key
-            eval $(ssh-agent -s)
-            ssh-add ~/.ssh/id_rsa.pem
-            
-            # Debug: Print SSH key information
-            ssh-add -l
-            
-            # Debug: Try to connect with verbose output
-            ssh -vvv -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST 'echo "SSH connection successful"'
-            
-            # Attempt rsync with verbose output
-            if rsync -avvz -e "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10" dist/ $USER@$HOST:/tmp/dist/; then
-              ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST '
+            ssh -i "~/.ssh/id_rsa.pem" -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST '
                 sudo rm -rf /var/www/html/*
                 sudo mv /tmp/dist/* /var/www/html/
                 sudo systemctl restart nginx
               '
-            else
-              echo "Failed to rsync files to the server"
-              exit 1
-            fi
-
 workflows:
   version: 2
   build-and-deploy:
