@@ -21,7 +21,17 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-            if rsync -avz -e "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10" dist/ $USER@$HOST:/tmp/dist/; then
+            chmod 700 ~/.ssh
+            chmod 600 ~/.ssh/known_hosts
+            
+            # Debug: Print SSH key information
+            ssh-add -l
+            
+            # Debug: Try to connect with verbose output
+            ssh -vvv -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST 'echo "SSH connection successful"'
+            
+            # Attempt rsync with verbose output
+            if rsync -avvz -e "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10" dist/ $USER@$HOST:/tmp/dist/; then
               ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST '
                 sudo rm -rf /var/www/html/*
                 sudo mv /tmp/dist/* /var/www/html/
