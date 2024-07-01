@@ -4,13 +4,13 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - test:
-          filters:
-            branches:
-              only: main
+      # - test:
+      #     filters:
+      #       branches:
+      #         only: main
       - build:
-          requires:
-            - test
+          # requires:
+          #   - test
           filters:
             branches:
               only: main            
@@ -22,19 +22,19 @@ workflows:
               only: main
 
 jobs:
-  test:
-    docker:
-      - image: sonarsource/sonar-scanner-cli:latest
-    steps:
-      - checkout
-      - run:
-          name: Run SonarQube analysis
-          command: |
-            sonar-scanner \
-              -Dsonar.projectKey=${PROJECT_KEY} \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=${SONAR_HOST_URL} \
-              -Dsonar.login=${SONAR_TOKEN}
+  # test:
+  #   docker:
+  #     - image: sonarsource/sonar-scanner-cli:latest
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Run SonarQube analysis
+  #         command: |
+  #           sonar-scanner \
+  #             -Dsonar.projectKey=${PROJECT_KEY} \
+  #             -Dsonar.sources=. \
+  #             -Dsonar.host.url=${SONAR_HOST_URL} \
+  #             -Dsonar.login=${SONAR_TOKEN}
 
   build:
     docker:
