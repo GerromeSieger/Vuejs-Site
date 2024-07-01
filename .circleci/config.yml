@@ -4,8 +4,13 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-
+      - test:
+          filters:
+            branches:
+              only: main
       - build:
+          requires:
+            - test
           filters:
             branches:
               only: main            
@@ -17,6 +22,19 @@ workflows:
               only: main
 
 jobs:
+  test:
+    docker:
+      - image: sonarsource/sonar-scanner-cli:latest
+    steps:
+      - checkout
+      - run:
+          name: Run SonarQube analysis
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=${PROJECT_KEY} \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=${SONAR_HOST_URL} \
+              -Dsonar.login=${SONAR_TOKEN}
 
   build:
     docker:
@@ -42,35 +60,20 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-#      - checkout
       - run:
-          name: Generate Docker Tag
+          name: Create and populate kubeconfig
           command: |
-            echo "export DOCKER_TAG=${CIRCLE_SHA1:0:7}" >> $BASH_ENV
-            source $BASH_ENV  
-            echo $DOCKER_TAG    
+            mkdir -p $HOME/.kube
+            echo "${KUBECONFIG_CONTENT}" >> $HOME/.kube/config
+            chmod 600 $HOME/.kube/config
       - run:
-          name: Clone K8s Manifests Repo
+          name: Install kubectl
           command: |
-            git clone https://x-access-token:$MANIFEST_REPO_PAT@$K8S_MANIFEST_REPO k8s-manifests
-            cd k8s-manifests
-            git config user.name "CircleCI"
-            git config user.email "circleci@example.com"
+            curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
       - run:
-          name: Update Kubernetes Manifests
+          name: Verify kubectl configuration
           command: |
-            cd k8s-manifests
-            git pull origin main
-            awk -v image="${DOCKER_IMAGE}:${DOCKER_TAG}" '
-              /image:/ {$0 = "        image: " image}
-              {print}
-            ' k8s/app.yml > temp.yml && mv temp.yml k8s/app.yml
-            if [[ -n $(git status -s) ]]; then
-              echo "Changes detected. Committing and pushing..."
-              git add .
-              git commit -m "Update image tag to ${DOCKER_TAG}"
-              git push origin main
-            else
-              echo "No changes detected in Kubernetes manifests."
-            fi
-              
+            git clone ${KUBE_MANIFEST_REPO}
+            kubectl get nodes
