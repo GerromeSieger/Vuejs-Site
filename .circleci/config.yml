@@ -64,7 +64,7 @@ jobs:
           name: Create and populate kubeconfig
           command: |
             mkdir -p $HOME/.kube
-            echo "$KUBECONFIG_CONTENT" | base64 -d > $HOME/.kube/config
+            echo -e "$KUBECONFIG_CONTENT" > $HOME/.kube/config
             chmod 600 $HOME/.kube/config
       - run:
           name: Install kubectl
