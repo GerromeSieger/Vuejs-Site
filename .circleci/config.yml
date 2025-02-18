@@ -65,7 +65,7 @@ jobs:
             kubectl get nodes
 
             # Deploy Kubernetes resources
-            git clone "${MANIFEST_REPO}" k8s-repo
+            git clone https://x-access-token:$MANIFEST_REPO_PAT@$K8S_MANIFEST_REPO k8s-repo
             awk -v image="${DOCKER_IMAGE}:${DOCKER_TAG}" '
               /image:/ {$0 = "        image: " image}
               {print}
